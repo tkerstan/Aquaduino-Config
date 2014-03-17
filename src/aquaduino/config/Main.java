@@ -35,8 +35,6 @@ import java.nio.channels.GatheringByteChannel;
 
 import javax.swing.JTabbedPane;
 
-import com.sun.tools.doclets.internal.toolkit.Configuration;
-
 import sun.management.snmp.jvminstr.JvmThreadInstanceTableMetaImpl;
 import sun.nio.cs.ext.MacArabic;
 
@@ -482,7 +480,7 @@ public class Main {
 	 */
 	private void initialize() {
 		frame = new JFrame();
-		frame.setBounds(100, 100, 640, 600);
+		frame.setBounds(100, 100, 660, 630);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().setLayout(null);
 		
@@ -498,7 +496,7 @@ public class Main {
 				
 			}
 		});
-		btnLoadConfig.setBounds(410, 549, 110, 28);
+		btnLoadConfig.setBounds(384, 559, 110, 28);
 		frame.getContentPane().add(btnLoadConfig);
 		
 		JButton btnSaveConfig = new JButton("Save Config");
@@ -513,7 +511,7 @@ public class Main {
 				}
 			}
 		});
-		btnSaveConfig.setBounds(524, 549, 110, 28);
+		btnSaveConfig.setBounds(498, 559, 110, 28);
 		frame.getContentPane().add(btnSaveConfig);
 		
 		JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
@@ -674,26 +672,26 @@ public class Main {
 			String tmp = "";
 			f.read(c.macAddress);
 			for (int i = 0; i < 6; i++){
-				tmp += Integer.toHexString((c.macAddress[i] & 0x000000f0) >> 4);
-				tmp += Integer.toHexString(c.macAddress[i] & 0x0000000f);
+				tmp += Integer.toHexString((c.macAddress[i] & 0xf0) >> 4);
+				tmp += Integer.toHexString(c.macAddress[i] & 0x0f);
 			}
 			macTxtField.setText(tmp);
 			c.dhcp = (byte) f.read();
 			if (c.dhcp == 1){
 				dhcpCBox.setSelected(true);
-				ipTxtField.setEnabled(true);
-				netmaskTxtField.setEnabled(true);
-				defaultGWTxtField.setEnabled(true);
-			} else {
-				dhcpCBox.setSelected(false);
 				ipTxtField.setEnabled(false);
 				netmaskTxtField.setEnabled(false);
-				defaultGWTxtField.setEnabled(false);				
+				defaultGWTxtField.setEnabled(false);
+			} else {
+				dhcpCBox.setSelected(false);
+				ipTxtField.setEnabled(true);
+				netmaskTxtField.setEnabled(true);
+				defaultGWTxtField.setEnabled(true);				
 			}
 			f.read(c.ipAddress);
 			tmp = "";
 			for (int i = 0; i < 4; i++){
-				tmp += c.ipAddress[i];
+				tmp += ((int) c.ipAddress[i]) & 0xff;
 				if (i < 3)
 					tmp+=".";
 			}
@@ -701,7 +699,7 @@ public class Main {
 			f.read(c.netmask);
 			tmp = "";
 			for (int i = 0; i < 4; i++){
-				tmp += c.netmask[i];
+				tmp += ((int) c.netmask[i]) & 0xff;
 				if (i < 3)
 					tmp+=".";
 			}
@@ -709,7 +707,7 @@ public class Main {
 			f.read(c.defaultGW);
 			tmp = "";
 			for (int i = 0; i < 4; i++){
-				tmp += c.defaultGW[i];
+				tmp += ((int) c.defaultGW[i]) & 0xff;
 				if (i < 3)
 					tmp+=".";
 			}
@@ -727,6 +725,8 @@ public class Main {
 			f.read(c.ntpAddress);
 			tmp = "";
 			for (int i = 0; i < 4; i++){
+				tmp += ((int) c.netmask[i]) & 0xff;
+				
 				tmp += c.ntpAddress[i];
 				if (i < 3)
 					tmp+=".";
@@ -761,7 +761,7 @@ public class Main {
 	
 	private boolean writeConfigToFile(String fileName, Config c){
 		try{
-			//System.out.println("Writing file "+fileName);
+			System.out.println("Writing file "+fileName);
 			FileOutputStream f = new FileOutputStream(fileName);
 			f.write(c.aquaduinoStringLength);
 			f.write(c.xivelyFeedNameLength);
