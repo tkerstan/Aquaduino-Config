@@ -24,19 +24,11 @@ import javax.swing.JFileChooser;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ChangeEvent;
 
-import java.awt.event.FocusAdapter;
-import java.awt.event.FocusEvent;
-import java.io.BufferedOutputStream;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.channels.GatheringByteChannel;
 
 import javax.swing.JTabbedPane;
-
-import sun.management.snmp.jvminstr.JvmThreadInstanceTableMetaImpl;
-import sun.nio.cs.ext.MacArabic;
 
 public class Main {
 	
@@ -725,9 +717,7 @@ public class Main {
 			f.read(c.ntpAddress);
 			tmp = "";
 			for (int i = 0; i < 4; i++){
-				tmp += ((int) c.netmask[i]) & 0xff;
-				
-				tmp += c.ntpAddress[i];
+				tmp += ((int) c.ntpAddress[i]) & 0xff;
 				if (i < 3)
 					tmp+=".";
 			}
