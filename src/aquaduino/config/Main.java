@@ -98,7 +98,7 @@ public class Main {
 	
 	private String[] actuatorNames = {"None", "DigitalOutput"};
 	private String[] controllerNames = {"None", "Level", "Temperature", "ClockTimer"};
-	private String[] sensorNames = {"None", "Level", "Temperature", "Atlas pH"};
+	private String[] sensorNames = {"None", "Digital Input", "Temperature", "Atlas pH", "Atlas EC", "Atlas ORP"};
 	
 	private String[] pinPortNames = { "Not assigned", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31", "32", "33", "34", "35", "36", "37", "38", "39", "40", "41", "42", "43", "44", "45", "46", "47", "48", "49", "50", "51", "52", "53", "54"};
 	private String[] serialPortNames = {"Not assigned", "Serial 0", "Serial 1", "Serial 2", "Serial 3"};
@@ -405,7 +405,9 @@ public class Main {
 				public void actionPerformed(ActionEvent arg0) {
 					for (int i = 0; i < SENSORS; i++){
 						if (arg0.getSource() == sensorCombo[i]){
-							if (sensorCombo[i].getSelectedItem().toString().compareTo(sensorNames[3]) == 0){
+							if (sensorCombo[i].getSelectedItem().toString().compareTo(sensorNames[3]) == 0 ||
+								sensorCombo[i].getSelectedItem().toString().compareTo(sensorNames[4]) == 0 ||
+								sensorCombo[i].getSelectedItem().toString().compareTo(sensorNames[5]) == 0){
 								sensorPortCombo[i].setModel(new DefaultComboBoxModel(serialPortNames));
 							} else if (sensorCombo[i].getSelectedItem().toString().compareTo(sensorNames[0]) == 0) {
 								sensorPortCombo[i].setModel(new DefaultComboBoxModel(new String[] {"N/A"}));
@@ -867,7 +869,7 @@ public class Main {
 		if (xivelyCBox.getSelectedObjects() != null){
 			c.xively = 1;
 			if (xivelyAPIKeyTxtField.getText().length() <= XIVELY_API_KEY_LENGTH){
-				for (int j = 0; j < AQUADUINO_STRING_LENGTH; j++){
+				for (int j = 0; j < XIVELY_API_KEY_LENGTH; j++){
 					if (j < xivelyAPIKeyTxtField.getText().length()){
 						c.xivelyAPIKey[j] = (byte) xivelyAPIKeyTxtField.getText().charAt(j);
 					}
@@ -876,11 +878,11 @@ public class Main {
 					}
 				}
 			}else{
-				JOptionPane.showMessageDialog(frame, "Xively API Key too long!");
+				JOptionPane.showMessageDialog(frame, "Xively API Key too long! " + xivelyAPIKeyTxtField.getText().length() + "(" + xivelyAPIKeyTxtField.getText() + ")");
 				return false;
 			}
 			if(xivelyFeedIdTxtField.getText().length() <= XIVELY_FEED_NAME_LENGTH){
-				for (int j = 0; j < AQUADUINO_STRING_LENGTH; j++){
+				for (int j = 0; j < XIVELY_FEED_NAME_LENGTH; j++){
 					if (j < xivelyFeedIdTxtField.getText().length()){
 						c.xivelyFeedName[j] = (byte) xivelyFeedIdTxtField.getText().charAt(j);
 					} else {
@@ -888,7 +890,7 @@ public class Main {
 					}
 				}
 			}else{
-				JOptionPane.showMessageDialog(frame, "Xively Feed Name too long!");
+				JOptionPane.showMessageDialog(frame, "Xively Feed ID too long! " + xivelyFeedIdTxtField.getText().length());
 				return false;
 			}
 		}
