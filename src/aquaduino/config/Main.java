@@ -653,7 +653,7 @@ public class Main {
 			c.nrOfSensors = (byte) f.read();
 			for (int i=0; i<c.nrOfActuators; i++){
 				f.read(c.actuatorName[i]);
-				actuatorNameTxtField[i].setText(new String(c.actuatorName[i]));
+				actuatorNameTxtField[i].setText(new String(c.actuatorName[i]).trim());
 				c.actuators[i] = (byte) f.read();
 				actuatorCombo[i].setSelectedIndex(c.actuators[i]);
 				c.actuatorPorts[i] = (byte) f.read();
@@ -663,19 +663,19 @@ public class Main {
 			}
 			for (int i=0; i<c.nrOfControllers; i++){
 				f.read(c.controllerName[i]);
-				controllerNameTxtField[i].setText(new String(c.controllerName[i]));
+				controllerNameTxtField[i].setText(new String(c.controllerName[i]).trim());
 				c.controllers[i] = (byte) f.read();
 				controllerCombo[i].setSelectedIndex(c.controllers[i]);
 			}
 			for (int i=0; i<c.nrOfSensors; i++){
 				f.read(c.sensorName[i]);
-				sensorNameTxtField[i].setText(new String(c.sensorName[i]));
+				sensorNameTxtField[i].setText(new String(c.sensorName[i]).trim());
 				c.sensors[i] = (byte) f.read();
 				sensorCombo[i].setSelectedIndex(c.sensors[i]);
 				c.sensorPorts[i] = (byte) f.read();
 				sensorPortCombo[i].setSelectedIndex(c.sensorPorts[i]);
 				f.read(c.sensorXivelyChannel[i]);
-				sensorXivelyChannelTxtField[i].setText(new String(c.sensorXivelyChannel[i]));
+				sensorXivelyChannelTxtField[i].setText(new String(c.sensorXivelyChannel[i]).trim());
 			}
 			String tmp = "";
 			f.read(c.macAddress);
@@ -753,9 +753,9 @@ public class Main {
 				xivelyFeedIdTxtField.setEnabled(false);				
 			}
 			f.read(c.xivelyAPIKey);
-			xivelyAPIKeyTxtField.setText(new String(c.xivelyAPIKey));
+			xivelyAPIKeyTxtField.setText(new String(c.xivelyAPIKey).trim());
 			f.read(c.xivelyFeedName);
-			xivelyFeedIdTxtField.setText(new String(c.xivelyFeedName));
+			xivelyFeedIdTxtField.setText(new String(c.xivelyFeedName).trim());
 			f.close();
 			
 		}catch (IOException e){
@@ -915,10 +915,12 @@ public class Main {
 				for (int j = 0; j < AQUADUINO_STRING_LENGTH; j++){
 					if (j < actuatorNameTxtField[i].getText().length()){
 						c.actuatorName[i][j] = (byte) actuatorNameTxtField[i].getText().charAt(j);
+						System.out.print(Byte.toString(c.actuatorName[i][j]));
 					} else {
 						c.actuatorName[i][j] = 0;
 					}
 				}
+				System.out.println();
 			} else {
 				JOptionPane.showMessageDialog(frame, "Actuator Name " + i + " too long!");
 				return false;
