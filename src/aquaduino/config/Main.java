@@ -51,6 +51,7 @@ public class Main {
 		public byte[][] actuatorName = new byte[ACTUATORS][AQUADUINO_STRING_LENGTH];
 		public byte actuators[] = new byte[ACTUATORS];
 		public byte actuatorPorts[] = new byte[ACTUATORS];
+		public byte actuatorOnValues[] = new byte[ACTUATORS];
 		public byte[][] controllerName = new byte[CONTROLLERS][AQUADUINO_STRING_LENGTH];
 		public byte controllers[] = new byte[CONTROLLERS];
 		public byte[][] sensorName = new byte[SENSORS][AQUADUINO_STRING_LENGTH];
@@ -75,6 +76,7 @@ public class Main {
 	private JTextField actuatorNameTxtField[];
 	private JComboBox actuatorCombo[];
 	private JComboBox actuatorPortCombo[];
+	private JComboBox actuatorOnValueCombo[];
 	private JTextField controllerNameTxtField[];
 	private JComboBox controllerCombo[];
 	private JTextField sensorNameTxtField[];
@@ -97,10 +99,11 @@ public class Main {
 	private JFileChooser fileChooser;
 	
 	private String[] actuatorNames = {"None", "DigitalOutput"};
+	private String[] actuatorOnValues = {"0", "1"};
 	private String[] controllerNames = {"None", "Level", "Temperature", "ClockTimer"};
 	private String[] sensorNames = {"None", "Digital Input", "Temperature", "Atlas pH", "Atlas EC", "Atlas ORP"};
 	
-	private String[] pinPortNames = { "Not assigned", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31", "32", "33", "34", "35", "36", "37", "38", "39", "40", "41", "42", "43", "44", "45", "46", "47", "48", "49", "50", "51", "52", "53", "54"};
+	private String[] pinPortNames = { "Not assigned", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31", "32", "33", "34", "35", "36", "37", "38", "39", "40", "41", "42", "43", "44", "45", "46", "47", "48", "49", "50", "51", "52", "53", "54"};
 	private String[] serialPortNames = {"Not assigned", "Serial 0", "Serial 1", "Serial 2", "Serial 3"};
 	
 	/**
@@ -278,19 +281,23 @@ public class Main {
 		actuatorNameTxtField = new JTextField[ACTUATORS];
 		actuatorCombo = new JComboBox[ACTUATORS];
 		actuatorPortCombo = new JComboBox[ACTUATORS];
+		actuatorOnValueCombo = new JComboBox[ACTUATORS];
 		JPanel actuatorComboPanel = new JPanel();
 		JPanel actuatorComboPanel2 = new JPanel();
+		JPanel actuatorComboPanel3 = new JPanel();
 		
-		actuatorPanel.setLayout(new GridLayout(0, 4, 0, 0));
+		actuatorPanel.setLayout(new GridLayout(0, 5, 0, 0));
 		actuatorLblPanel.setLayout(new GridLayout(0, 1, 0, 0));
 		actuatorNamePanel.setLayout(new GridLayout(0, 1, 0, 0));
 		actuatorComboPanel.setLayout(new GridLayout(0, 1, 0, 0));
 		actuatorComboPanel2.setLayout(new GridLayout(0, 1, 0, 0));
+		actuatorComboPanel3.setLayout(new GridLayout(0, 1, 0, 0));
 		
 		actuatorPanel.add(actuatorLblPanel);
 		actuatorPanel.add(actuatorNamePanel);
 		actuatorPanel.add(actuatorComboPanel);
 		actuatorPanel.add(actuatorComboPanel2);
+		actuatorPanel.add(actuatorComboPanel3);
 		
 		actuatorCombo = new JComboBox[ACTUATORS];
 		for (int i = 0; i < ACTUATORS; i++){
@@ -299,12 +306,15 @@ public class Main {
 			actuatorNameTxtField[i].setText("Name " + String.valueOf(i));
 			actuatorCombo[i] = new JComboBox();
 			actuatorPortCombo[i] = new JComboBox();
+			actuatorOnValueCombo[i] = new JComboBox();
 			actuatorCombo[i].setModel(new DefaultComboBoxModel(actuatorNames));
 			actuatorPortCombo[i].setModel(new DefaultComboBoxModel(new String[] {"N/A"}));
+			actuatorOnValueCombo[i].setModel(new DefaultComboBoxModel(actuatorOnValues));
 			actuatorLblPanel.add(lblActuator[i]);
 			actuatorNamePanel.add(actuatorNameTxtField[i]);
 			actuatorComboPanel.add(actuatorCombo[i]);
 			actuatorComboPanel2.add(actuatorPortCombo[i]);
+			actuatorComboPanel3.add(actuatorOnValueCombo[i]);
 			
 			actuatorCombo[i].addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent arg0) {
@@ -603,6 +613,8 @@ public class Main {
 			}
 			System.out.print(" @ Port: ");
 			System.out.println(c.actuatorPorts[i]);
+			System.out.println(" On @ ");
+			System.out.println(c.actuatorOnValues[i]);
 		}
 		
 		for (int i = 0; i < c.nrOfControllers; i++){
@@ -646,6 +658,8 @@ public class Main {
 				actuatorCombo[i].setSelectedIndex(c.actuators[i]);
 				c.actuatorPorts[i] = (byte) f.read();
 				actuatorPortCombo[i].setSelectedIndex(c.actuatorPorts[i]);
+				c.actuatorOnValues[i] = (byte) f.read();
+				actuatorOnValueCombo[i].setSelectedIndex(c.actuatorOnValues[i]);
 			}
 			for (int i=0; i<c.nrOfControllers; i++){
 				f.read(c.controllerName[i]);
@@ -766,6 +780,7 @@ public class Main {
 				f.write(c.actuatorName[i]);
 				f.write(c.actuators[i]);
 				f.write(c.actuatorPorts[i]);
+				f.write(c.actuatorOnValues[i]);
 			}
 			for (int i=0; i<c.nrOfControllers; i++){
 				f.write(c.controllerName[i]);
@@ -910,6 +925,7 @@ public class Main {
 			}
 			c.actuators[i] = (byte) actuatorCombo[i].getSelectedIndex();
 			c.actuatorPorts[i] = (byte) actuatorPortCombo[i].getSelectedIndex();
+			c.actuatorOnValues[i] = (byte) actuatorOnValueCombo[i].getSelectedIndex();
 		}
 		
 		for (int i = 0; i < CONTROLLERS; i++){
