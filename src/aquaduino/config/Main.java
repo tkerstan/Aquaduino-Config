@@ -657,7 +657,7 @@ public class Main {
 				c.actuators[i] = (byte) f.read();
 				actuatorCombo[i].setSelectedIndex(c.actuators[i]);
 				c.actuatorPorts[i] = (byte) f.read();
-				actuatorPortCombo[i].setSelectedIndex(c.actuatorPorts[i]);
+				actuatorPortCombo[i].setSelectedItem(Byte.toString(c.actuatorPorts[i]));
 				c.actuatorOnValues[i] = (byte) f.read();
 				actuatorOnValueCombo[i].setSelectedIndex(c.actuatorOnValues[i]);
 			}
