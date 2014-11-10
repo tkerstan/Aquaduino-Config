@@ -926,7 +926,11 @@ public class Main {
 				return false;
 			}
 			c.actuators[i] = (byte) actuatorCombo[i].getSelectedIndex();
-			c.actuatorPorts[i] = (byte) actuatorPortCombo[i].getSelectedIndex();
+			try{
+				c.actuatorPorts[i] = (byte) Byte.parseByte(actuatorPortCombo[i].getSelectedItem().toString());
+			} catch (Exception e){
+				c.actuatorPorts[i] = 0;
+			}
 			c.actuatorOnValues[i] = (byte) actuatorOnValueCombo[i].getSelectedIndex();
 		}
 		
