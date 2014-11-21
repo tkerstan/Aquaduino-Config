@@ -673,7 +673,7 @@ public class Main {
 				c.sensors[i] = (byte) f.read();
 				sensorCombo[i].setSelectedIndex(c.sensors[i]);
 				c.sensorPorts[i] = (byte) f.read();
-				sensorPortCombo[i].setSelectedIndex(c.sensorPorts[i]);
+				sensorPortCombo[i].setSelectedItem(Byte.toString(c.sensorPorts[i]));
 				f.read(c.sensorXivelyChannel[i]);
 				sensorXivelyChannelTxtField[i].setText(new String(c.sensorXivelyChannel[i]).trim());
 			}
@@ -975,7 +975,11 @@ public class Main {
 				JOptionPane.showMessageDialog(frame, "Xively Channel Name" + i + " too long!");
 			}
 			c.sensors[i] = (byte) sensorCombo[i].getSelectedIndex();
-			c.sensorPorts[i] = (byte) sensorPortCombo[i].getSelectedIndex();
+			try{
+				c.sensorPorts[i] = (byte) Byte.parseByte(sensorPortCombo[i].getSelectedItem().toString());
+			} catch (Exception e){
+				c.sensorPorts[i] = 0;
+			}
 		}
 		return true;
 	}
