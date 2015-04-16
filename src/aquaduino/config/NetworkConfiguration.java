@@ -1,17 +1,14 @@
 package aquaduino.config;
 
-import java.awt.Frame;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
-
+import java.math.BigInteger;
+import java.net.Inet4Address;
+import java.net.InetAddress;
 import javax.swing.JCheckBox;
-import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -24,6 +21,19 @@ import javax.swing.event.ChangeListener;
 import org.javalobby.validate.IPValidator;
 import org.javalobby.validate.IntegerValidator;
 import org.javalobby.validate.MACValidator;
+
+class NetworkConfigurationRAWType{
+	byte[] mac = new byte [6];
+	byte dhcp;
+	byte[] ip = new byte[4];
+	byte[] netmask = new byte[4];
+	byte[] gw = new byte[4];
+	byte[] dns = new byte[4];
+	byte ntp;
+	byte[] ntpServer = new byte[4];
+	byte ntpSyncIntvl;
+	byte gmt;
+}
 
 public class NetworkConfiguration {
 	private JTextField macTxtField;
@@ -182,6 +192,8 @@ public class NetworkConfiguration {
 	}
 	
 	public int saveConfig(String filename) throws IOException{
+		NetworkConfigurationRAWType raw = new NetworkConfigurationRAWType();
+		
 		boolean status = true;
 		
 		status = status & macTxtField.getInputVerifier().verify(macTxtField);
@@ -196,22 +208,56 @@ public class NetworkConfiguration {
 			status = status & ntpSyncIntvlTxtField.getInputVerifier().verify(ntpSyncIntvlTxtField);
 		}
 		
+		System.out.println(filename);
 		System.out.println("Config is valid: "+status);
 			
-		
 		FileOutputStream f = new FileOutputStream(filename);
-		ByteArrayOutputStream b = new ByteArrayOutputStream();
-		b.write(macTxtField.getText().getBytes());
-		b.write(dhcpCBox.isSelected() ? 1 : 0);
-		b.write(ipTxtField.getText().getBytes());
-		b.write(netmaskTxtField.getText().getBytes());
-		b.write(defaultGWTxtField.getText().getBytes());
-		b.write(dnsTxtField.getText().getBytes());
-		b.write(ntpCBox.isSelected() ? 1 : 0);
-		b.write(ntpServerTxtField.getText().getBytes());
-		b.write(Integer.parseInt(ntpSyncIntvlTxtField.getText()));
-		b.write(gmtSlider.getValue());
-		b.writeTo(System.out);
+		
+		byte[] tmp;
+		InetAddress ipAddress;
+		
+		tmp = new BigInteger(macTxtField.getText(),16).toByteArray();
+		System.arraycopy(tmp, 1, raw.mac, 0, tmp.length-1);
+		
+		raw.dhcp = dhcpCBox.isSelected() ? (byte) 1 : (byte) 0;
+
+		tmp = ipTxtField.getText().getBytes();
+		ipAddress = Inet4Address.getByName(ipTxtField.getText());
+		System.arraycopy(ipAddress.getAddress(), 0, raw.ip, 0, ipAddress.getAddress().length);
+
+		tmp = netmaskTxtField.getText().getBytes();
+		ipAddress = Inet4Address.getByName(netmaskTxtField.getText());
+		System.arraycopy(ipAddress.getAddress(), 0, raw.netmask, 0, ipAddress.getAddress().length);
+
+		tmp = defaultGWTxtField.getText().getBytes();
+		ipAddress = Inet4Address.getByName(defaultGWTxtField.getText());
+		System.arraycopy(ipAddress.getAddress(), 0, raw.gw, 0, ipAddress.getAddress().length);
+
+		tmp = dnsTxtField.getText().getBytes();
+		ipAddress = Inet4Address.getByName(dnsTxtField.getText());
+		System.arraycopy(ipAddress.getAddress(), 0, raw.dns, 0, ipAddress.getAddress().length);
+		
+		raw.ntp = ntpCBox.isSelected() ? (byte) 1 : (byte) 0;
+
+		tmp = ntpServerTxtField.getText().getBytes();
+		ipAddress = Inet4Address.getByName(dnsTxtField.getText());
+		System.arraycopy(ipAddress.getAddress(), 0, raw.ntpServer, 0, ipAddress.getAddress().length);
+		
+		raw.ntpSyncIntvl = (byte) Integer.parseInt("0" + ntpSyncIntvlTxtField.getText());
+		
+		raw.gmt = (byte) gmtSlider.getValue();
+		
+		f.write(raw.mac);
+		f.write(raw.dhcp);
+		f.write(raw.ip);
+		f.write(raw.netmask);
+		f.write(raw.gw);
+		f.write(raw.dns);
+		f.write(raw.ntp);
+		f.write(raw.ntpServer);
+		f.write(raw.ntpSyncIntvl);
+		f.write(raw.gmt);
+		
 		f.close();
 		return 0;
 	}
