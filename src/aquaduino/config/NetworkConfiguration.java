@@ -1,13 +1,16 @@
 package aquaduino.config;
 
 import java.awt.GridLayout;
+import javax.xml.bind.DatatypeConverter;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.net.Inet4Address;
 import java.net.InetAddress;
+
 import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -24,15 +27,15 @@ import org.javalobby.validate.MACValidator;
 
 class NetworkConfigurationRAWType{
 	byte[] mac = new byte [6];
-	byte dhcp;
+	byte[] dhcp = new byte[1];
 	byte[] ip = new byte[4];
 	byte[] netmask = new byte[4];
 	byte[] gw = new byte[4];
 	byte[] dns = new byte[4];
-	byte ntp;
+	byte[] ntp = new byte[1];
 	byte[] ntpServer = new byte[4];
-	byte ntpSyncIntvl;
-	byte gmt;
+	byte[] ntpSyncIntvl = new byte[1];
+	byte[] gmt = new byte[1];
 }
 
 public class NetworkConfiguration {
@@ -191,11 +194,9 @@ public class NetworkConfiguration {
 
 	}
 	
-	public int saveConfig(String filename) throws IOException{
-		NetworkConfigurationRAWType raw = new NetworkConfigurationRAWType();
-		
+	public boolean validate(){
 		boolean status = true;
-		
+
 		status = status & macTxtField.getInputVerifier().verify(macTxtField);
 		if (!dhcpCBox.isSelected()){
 			status = status & ipTxtField.getInputVerifier().verify(ipTxtField);
@@ -208,8 +209,11 @@ public class NetworkConfiguration {
 			status = status & ntpSyncIntvlTxtField.getInputVerifier().verify(ntpSyncIntvlTxtField);
 		}
 		
-		System.out.println(filename);
-		System.out.println("Config is valid: "+status);
+		return status;
+	}
+	
+	public void saveConfig(String filename) throws IOException{
+		NetworkConfigurationRAWType raw = new NetworkConfigurationRAWType();
 			
 		FileOutputStream f = new FileOutputStream(filename);
 		
@@ -219,7 +223,7 @@ public class NetworkConfiguration {
 		tmp = new BigInteger(macTxtField.getText(),16).toByteArray();
 		System.arraycopy(tmp, 1, raw.mac, 0, tmp.length-1);
 		
-		raw.dhcp = dhcpCBox.isSelected() ? (byte) 1 : (byte) 0;
+		raw.dhcp[0] = dhcpCBox.isSelected() ? (byte) 1 : (byte) 0;
 
 		tmp = ipTxtField.getText().getBytes();
 		ipAddress = Inet4Address.getByName(ipTxtField.getText());
@@ -237,15 +241,15 @@ public class NetworkConfiguration {
 		ipAddress = Inet4Address.getByName(dnsTxtField.getText());
 		System.arraycopy(ipAddress.getAddress(), 0, raw.dns, 0, ipAddress.getAddress().length);
 		
-		raw.ntp = ntpCBox.isSelected() ? (byte) 1 : (byte) 0;
+		raw.ntp[0] = ntpCBox.isSelected() ? (byte) 1 : (byte) 0;
 
 		tmp = ntpServerTxtField.getText().getBytes();
-		ipAddress = Inet4Address.getByName(dnsTxtField.getText());
+		ipAddress = Inet4Address.getByName(ntpServerTxtField.getText());
 		System.arraycopy(ipAddress.getAddress(), 0, raw.ntpServer, 0, ipAddress.getAddress().length);
 		
-		raw.ntpSyncIntvl = (byte) Integer.parseInt("0" + ntpSyncIntvlTxtField.getText());
+		raw.ntpSyncIntvl[0] = (byte) Integer.parseInt("0" + ntpSyncIntvlTxtField.getText());
 		
-		raw.gmt = (byte) gmtSlider.getValue();
+		raw.gmt[0] = (byte) gmtSlider.getValue();
 		
 		f.write(raw.mac);
 		f.write(raw.dhcp);
@@ -259,7 +263,43 @@ public class NetworkConfiguration {
 		f.write(raw.gmt);
 		
 		f.close();
-		return 0;
+	}
+	
+	public void loadConfig(String filename) throws IOException{
+		NetworkConfigurationRAWType raw = new NetworkConfigurationRAWType();
+		
+		FileInputStream f = new FileInputStream(filename);
+				
+		f.read(raw.mac);
+		f.read(raw.dhcp);		
+		f.read(raw.ip);
+		f.read(raw.netmask);
+		f.read(raw.gw);
+		f.read(raw.dns);
+		f.read(raw.ntp);
+		f.read(raw.ntpServer);
+		f.read(raw.ntpSyncIntvl);
+		f.read(raw.gmt);		
+		
+		macTxtField.setText(DatatypeConverter.printHexBinary(raw.mac));
+		if ((raw.dhcp[0] == 1 && dhcpCBox.isSelected() == false) ||
+			(raw.dhcp[0] == 0 && dhcpCBox.isSelected() == true)) {
+			dhcpCBox.doClick();
+		}
+		
+		ipTxtField.setText(String.valueOf(raw.ip[0]) + "." + String.valueOf(raw.ip[1]) + "." + String.valueOf(raw.ip[2]) + "." + String.valueOf(raw.ip[3]));
+		netmaskTxtField.setText(String.valueOf(raw.netmask[0]) + "." + String.valueOf(raw.netmask[1]) + "." + String.valueOf(raw.netmask[2]) + "." + String.valueOf(raw.netmask[3]));
+		defaultGWTxtField.setText(String.valueOf(raw.gw[0]) + "." + String.valueOf(raw.gw[1]) + "." + String.valueOf(raw.gw[2]) + "." + String.valueOf(raw.gw[3]));
+		dnsTxtField.setText(String.valueOf(raw.dns[0]) + "." + String.valueOf(raw.dns[1]) + "." + String.valueOf(raw.dns[2]) + "." + String.valueOf(raw.dns[3]));
+		if ((raw.ntp[0] == 1 && ntpCBox.isSelected() == false) ||
+			(raw.ntp[0] == 0 && ntpCBox.isSelected() == true)) {
+				ntpCBox.doClick();
+		}
+		ntpServerTxtField.setText(String.valueOf(raw.ntpServer[0]) + "." + String.valueOf(raw.ntpServer[1]) + "." + String.valueOf(raw.ntpServer[2]) + "." + String.valueOf(raw.ntpServer[3]));
+		ntpSyncIntvlTxtField.setText(Byte.toString(raw.ntpSyncIntvl[0]));
+		gmtSlider.setValue(raw.gmt[0]);
+		
+		f.close();
 	}
 
 }

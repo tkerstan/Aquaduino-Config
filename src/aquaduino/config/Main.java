@@ -63,7 +63,12 @@ public class Main {
 			public void actionPerformed(ActionEvent arg0) {
 				if (fileChooser.showOpenDialog(frame.getContentPane()) == JFileChooser.APPROVE_OPTION)
 				{
-					//loadConfig(fileChooser.getSelectedFile().getAbsolutePath());
+					try{
+						networkConfig.loadConfig(fileChooser.getSelectedFile().getPath()+"/net.cfg");
+					} catch (IOException e)
+					{
+						System.err.println(e);
+					}
 				}
 				
 			}
@@ -74,20 +79,21 @@ public class Main {
 		JButton btnSaveConfig = new JButton("Save Config");
 		btnSaveConfig.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				if (fileChooser.showSaveDialog(frame.getContentPane()) == JFileChooser.APPROVE_OPTION){
-//					if (fileChooser.getSelectedFile().exists()){
-//						if (JOptionPane.showConfirmDialog(frame,"Overwrite " + fileChooser.getSelectedFile() + "?","Overwrite File?", JOptionPane.YES_NO_OPTION) == 1)
-//							return;
-//					}
-					try{
-						networkConfig.saveConfig(fileChooser.getSelectedFile().getPath()+"/net.cfg");
-					} catch (IOException e)
-					{
-						
+				if (!networkConfig.validate()){
+					JOptionPane.showMessageDialog(frame, "Config not valid");
+				} else {
+					if (fileChooser.showSaveDialog(frame.getContentPane()) == JFileChooser.APPROVE_OPTION){
+						try{
+							networkConfig.saveConfig(fileChooser.getSelectedFile().getPath()+"/net.cfg");
+						} catch (IOException e)
+						{
+							System.err.println(e);
+						}
 					}
 				}
 			}
 		});
+		
 		btnSaveConfig.setBounds(498, 559, 110, 28);
 		frame.getContentPane().add(btnSaveConfig);
 		
